@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 # Merge a PR only if it passes these checks.
-# Settings, including the mode, live in autotriage.conf next to this script.
+# Settings, including the mode, live in mergatron.conf next to this script.
 # Without that file nothing is merged.
 set -euo pipefail
 
 here="$(dirname "$0")"
-source "$here/autotriage_lib.sh"
+source "$here/mergatron_lib.sh"
 
 # Check the argument is a PR number.
-pr="${1:?usage: autotriage_guard.sh <pr-number>}"
+pr="${1:?usage: mergatron_guard.sh <pr-number>}"
 [[ "$pr" =~ ^[0-9]+$ ]] || fail "'$pr' is not a PR number"
 who="#$pr"
 
-# Read settings (see autotriage_lib.sh for the format).
-conf="$here/autotriage.conf"
+# Read settings (see mergatron_lib.sh for the format).
+conf="$here/mergatron.conf"
 load_conf "$conf"
 
 # Check the settings themselves.
@@ -102,14 +102,14 @@ while IFS= read -r f; do
   ! matches_any "$f" ${protected[@]+"${protected[@]}"} || fail "touches protected file $f"
 done <<<"$files"
 
-# True if the repo has CI of its own: a workflow besides autotriage's, or
+# True if the repo has CI of its own: a workflow besides mergatron's, or
 # another CI service's config.
 has_ci() {
   local f
   for f in "$here"/workflows/*.yml "$here"/workflows/*.yaml; do
     [[ -e "$f" ]] || continue
     case "${f##*/}" in
-      autotriage.yml | autofix.yml | upgrade-dependencies.yml) ;;
+      mergatron.yml | autofix.yml | upgrade-dependencies.yml) ;;
       *) return 0 ;;
     esac
   done

@@ -8,9 +8,9 @@ failed=0
 
 # Usage: check "<conf lines>" "<expected autofix_prs autofix_issues merge_own_fixes>"
 check() {
-  printf '%b\n' "$1" >"$tmp/autotriage.conf"
-  got=$(source "$root/github-template/autotriage_lib.sh"
-    load_conf "$tmp/autotriage.conf"
+  printf '%b\n' "$1" >"$tmp/mergatron.conf"
+  got=$(source "$root/github-template/mergatron_lib.sh"
+    load_conf "$tmp/mergatron.conf"
     echo "$autofix_prs $autofix_issues $merge_own_fixes")
   if [[ "$got" != "$2" ]]; then
     echo "FAIL: conf '$1': got '$got', expected '$2'"

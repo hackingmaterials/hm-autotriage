@@ -3,7 +3,7 @@
 # unprotected in mayhem, or when "@claude fix" may open PRs.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
-repo=autotriage-test/pyproject-protection-test
+repo=mergatron-test/pyproject-protection-test
 out=output/pyproject-protection-test
 trap 'rm -rf "$out"' EXIT
 failed=0
@@ -13,7 +13,7 @@ check() {
   # shellcheck disable=SC2086
   bash setup.sh --repo "$repo" --maintainer @someone $1 </dev/null >/dev/null 2>&1
   got=no
-  if grep -qx 'protected = pyproject.toml' "$out/.github/autotriage.conf"; then got=yes; fi
+  if grep -qx 'protected = pyproject.toml' "$out/.github/mergatron.conf"; then got=yes; fi
   if [[ "$got" != "$2" ]]; then
     echo "FAIL: setup.sh $1: pyproject.toml protected '$got', expected '$2'"
     failed=1

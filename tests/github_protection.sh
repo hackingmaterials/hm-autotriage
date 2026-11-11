@@ -3,7 +3,7 @@
 # but its workflows and the bots' own files stay protected in every mode.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
-repo=autotriage-test/github-protection-test
+repo=mergatron-test/github-protection-test
 out=output/github-protection-test
 trap 'rm -rf "$out"' EXIT
 failed=0
@@ -19,16 +19,16 @@ check() {
   fi
   local f want got
   for f in .github/ISSUE_TEMPLATE/bug.md .github/dependabot.yml \
-    .github/workflows/ci.yml .github/workflows/autotriage.yml \
-    .github/autotriage.conf .github/autotriage_guard.sh .github/autofix_rules.md \
+    .github/workflows/ci.yml .github/workflows/mergatron.yml \
+    .github/mergatron.conf .github/mergatron_guard.sh .github/autofix_rules.md \
     .github/CODEOWNERS; do
     want=yes
     case "$f" in .github/ISSUE_TEMPLATE/* | .github/dependabot.yml) want="$2" ;; esac
     # shellcheck disable=SC1091
     got=$(
       cd "$out"
-      source .github/autotriage_lib.sh
-      load_conf .github/autotriage.conf
+      source .github/mergatron_lib.sh
+      load_conf .github/mergatron.conf
       if matches_any "$f" "${protected[@]}"; then echo yes; else echo no; fi
     )
     if [[ "$got" != "$want" ]]; then

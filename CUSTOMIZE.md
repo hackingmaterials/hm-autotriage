@@ -1,6 +1,6 @@
-# Customizing autotriage for a repository
+# Customizing mergatron for a repository
 
-Instructions for an agent, working in the autotriage-generic directory.
+Instructions for an agent, working in the mergatron directory.
 You are given a repository, `OWNER/REPO`, and possibly a mode. `setup.sh`
 does the mechanical part: it writes the files for the mode, with working
 defaults, to `output/REPO/.github/`. You do the part that needs judgment:
@@ -11,8 +11,8 @@ copies the folder into their repo afterwards.
 REPO is the part of `OWNER/REPO` after the slash.
 - **If it exists,** those are the files to customize. Don't run `setup.sh`
   again unless step 2 says to.
-  1. Read the mode and settings in `output/REPO/.github/autotriage.conf`,
-     and the `cron` line in `output/REPO/.github/workflows/autotriage.yml`.
+  1. Read the mode and settings in `output/REPO/.github/mergatron.conf`,
+     and the `cron` line in `output/REPO/.github/workflows/mergatron.yml`.
   2. Show the table from step 1, and say which mode and settings the files
      use.
   3. Ask the fine-tune question from step 1. If no, go on to item 6.
@@ -53,11 +53,11 @@ before anything else. Do this even if they already named a mode.
 > | Always escalate security and cost risks, protected files, domain risk areas | yes | yes | yes |
 >
 > **You can adjust any of this later.** Switch modes by editing the `mode`
-> line in `.github/autotriage.conf`. Change single behaviors with the other
+> line in `.github/mergatron.conf`. Change single behaviors with the other
 > lines in that file, e.g. how many PRs each sweep handles, whether
 > maintainers can tag "@claude", which kinds of PR merge, turning off
 > "@claude fix", or protecting more files. Change how often the bot sweeps
-> with the `cron` line in `.github/workflows/autotriage.yml`. Conservative
+> with the `cron` line in `.github/workflows/mergatron.yml`. Conservative
 > mode always wins: it stops every merge and commit.
 
 If the person named a mode, say which column applies and carry on.
@@ -89,7 +89,7 @@ as the default:
   - In step 2, leave out `--cron`, `--max-prs`, `--mentions`, and
     `--edit-github`, so
     `setup.sh` uses its defaults. Don't write answers into
-    `autotriage.conf`.
+    `mergatron.conf`.
   - Skip the style question. Still ask the custom guidance question at
     the end of this step.
   - In step 3, do only "Write the custom guidance", then go on to step 5.
@@ -137,7 +137,7 @@ Then ask this, word for word, as yes or no, with no as the default:
 
 - **If no,** don't read the target repo to change the setup. Skip
   "Gather facts" and the fill-ins in step 3, and leave every default in
-  `autotriage_rules.md` and `autotriage.conf` as `setup.sh` wrote it. Use
+  `mergatron_rules.md` and `mergatron.conf` as `setup.sh` wrote it. Use
   only maintainer handles the person gives; if they give none, leave out
   `--maintainer` so `setup.sh` uses its default. Still ask the style
   question.
@@ -274,7 +274,7 @@ A rerun moves the old folder to `output/REPO/.github.previous/`. Copy any
 sections you or the person filled in back from there.
 
 Then write the answers to questions 1-5a into
-`output/REPO/.github/autotriage.conf`, so the file says exactly what was
+`output/REPO/.github/mergatron.conf`, so the file says exactly what was
 chosen. If the person skipped the questions, leave the file as `setup.sh`
 wrote it.
 
@@ -293,7 +293,7 @@ fix" is on; if 5 is no and the mode isn't mayhem, add that line back.
 --edit-github yes` removes `protected = .github/*`, and is the default in
 mayhem. The `protected` lines after it always stay: GitHub doesn't let the
 Claude app write `.github/workflows/`, and the bots must not change their
-own files (`.github/autotriage*`, `.github/autofix*`) or `CODEOWNERS`.
+own files (`.github/mergatron*`, `.github/autofix*`) or `CODEOWNERS`.
 
 `setup.sh` prints the setup checklist; put it in your report.
 
@@ -318,7 +318,7 @@ Read README, CONTRIBUTING, the PR template, CODEOWNERS, any `AGENTS.md` or
 discussion and 5 issues closed by a PR (`gh pr view N -R $R --comments`).
 For each, note who made the decision and what evidence settled it.
 
-In `output/REPO/.github/autotriage_rules.md`, replace each "not assessed
+In `output/REPO/.github/mergatron_rules.md`, replace each "not assessed
 yet" or "none listed yet":
 
 | Section | How to fill it |
@@ -337,7 +337,7 @@ Leave a default in place if you find nothing better. Also:
   3 and the "first-time contributors" line.
 - For a repo that isn't scientific, delete the LaTeX line.
 
-In `output/REPO/.github/autotriage.conf`:
+In `output/REPO/.github/mergatron.conf`:
 - **Dependency PRs:** set `deps_branch` and `deps_paths` for the repo's
   dependency bot.
 
@@ -359,7 +359,7 @@ In `output/REPO/.github/autotriage.conf`:
 Write the answers to the style question from step 1:
 - **Comments:** each answer that differs from a default is one bullet
   under "Style for this repo", in "Writing comments" in
-  `output/REPO/.github/autotriage_rules.md`. Both bots follow that
+  `output/REPO/.github/mergatron_rules.md`. Both bots follow that
   section. The bottom line up front is fixed: style can change what goes
   in it, not remove it.
 - **Code:** each answer that differs from a default is one bullet under
@@ -386,13 +386,13 @@ Put each rule where it fits:
 
 | The guidance is about | Where it goes |
 |---|---|
-| A kind of PR that needs its own review, e.g. submissions or plug-ins | A new `## <Kind of PR>` section in `autotriage_rules.md`, before "When a maintainer tags you": how to recognize it, what to check, and what to put in the comment. If it must always reach a human, also list its paths under "Domain risk areas" and add a `protected` pattern in `autotriage.conf`. |
-| Paths that always need a human | "Domain risk areas" in `autotriage_rules.md`, and a `protected` pattern in `autotriage.conf` |
-| Rules for contributors | "Contribution requirements" in `autotriage_rules.md` |
-| Who handles which area | "Area owners" in `autotriage_rules.md`. Only handles the person gives, with write access. |
-| How the bot writes comments | "Style for this repo" in `autotriage_rules.md` |
+| A kind of PR that needs its own review, e.g. submissions or plug-ins | A new `## <Kind of PR>` section in `mergatron_rules.md`, before "When a maintainer tags you": how to recognize it, what to check, and what to put in the comment. If it must always reach a human, also list its paths under "Domain risk areas" and add a `protected` pattern in `mergatron.conf`. |
+| Paths that always need a human | "Domain risk areas" in `mergatron_rules.md`, and a `protected` pattern in `mergatron.conf` |
+| Rules for contributors | "Contribution requirements" in `mergatron_rules.md` |
+| Who handles which area | "Area owners" in `mergatron_rules.md`. Only handles the person gives, with write access. |
+| How the bot writes comments | "Style for this repo" in `mergatron_rules.md` |
 | How the bot writes code | "Code style for this repo" in `autofix_rules.md` |
-| What the bots must never do | "General conduct" in `autotriage_rules.md`, and the "Never" list in `autofix_rules.md` |
+| What the bots must never do | "General conduct" in `mergatron_rules.md`, and the "Never" list in `autofix_rules.md` |
 
 Write only checks the bots can do. The triage bot reads the diff, files,
 PRs, issues, and `git log`, but can't run code, open binary or compressed
@@ -404,13 +404,13 @@ under "Questions for you" in the report.
 
 ## 4. Refine, if the person asks
 
-Each refinement is a line in `.github/autotriage.conf`, except the
+Each refinement is a line in `.github/mergatron.conf`, except the
 schedule. The ones about merging and committing don't apply in conservative
 mode, which never merges or commits.
 
 | The person wants | Set |
 |---|---|
-| The bot to sweep more or less often | The `cron` line in `.github/workflows/autotriage.yml`. A maintainer can also comment `@claude sweep` on any issue or PR to sweep now. |
+| The bot to sweep more or less often | The `cron` line in `.github/workflows/mergatron.yml`. A maintainer can also comment `@claude sweep` on any issue or PR to sweep now. |
 | More or fewer PRs handled per sweep | `max_prs_per_run` |
 | Maintainers unable to tag "@claude" | `mentions = off` |
 | Different kinds of PR merged | `merge = docs`, `deps`, `tested`, `reviewed`, or `none`. Repeat for several; the list replaces the mode's. |
@@ -437,7 +437,7 @@ everything.
 Check:
 - Every maintainer handle has write access, and every risk-area path exists.
 - The config still loads:
-  `bash -c 'cd output/REPO && source .github/autotriage_lib.sh && load_conf .github/autotriage.conf && echo "$mode"'`.
+  `bash -c 'cd output/REPO && source .github/mergatron_lib.sh && load_conf .github/mergatron.conf && echo "$mode"'`.
 - The workflows in `output/REPO/.github/workflows/` pass `actionlint`, if it
   is installed.
 
@@ -449,8 +449,8 @@ Report to the person:
    > branch. GitHub only runs scheduled and comment-triggered workflows from
    > there.
 2. The mode and settings, why, and any warning you gave. Repeat that they
-   can adjust any of it later in `.github/autotriage.conf`, and the schedule
-   in `.github/workflows/autotriage.yml`.
+   can adjust any of it later in `.github/mergatron.conf`, and the schedule
+   in `.github/workflows/mergatron.yml`.
 3. What you filled in, with one line of evidence each, the style they
    chose, and one line for each piece of custom guidance and where it went.
 4. The setup checklist `setup.sh` printed, and its "Anthropic API key"

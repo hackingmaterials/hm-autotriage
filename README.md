@@ -1,4 +1,4 @@
-# autotriage-generic
+# mergatron
 
 Generate an AI auto-triage configuration for GitHub.
 
@@ -25,7 +25,7 @@ Each mode gains capability over the one before it: ${\color{green}\text
 Run `setup.sh` through your agent, from this directory, for your repo e.g.:
 
 ```markdown
-Read CUSTOMIZE.md and walk me through setting up autotriage for
+Read CUSTOMIZE.md and walk me through setting up mergatron for
 hackingmaterials/my_repo
 ```
 
@@ -58,7 +58,7 @@ Either:
 
 - have your agent guide you through `CUSTOMIZE.md`, using the prompt `setup.sh`
   prints at the end
-- edit `output/REPO/.github/autotriage_rules.md` (and `autotriage.conf` for
+- edit `output/REPO/.github/mergatron_rules.md` (and `mergatron.conf` for
   settings) yourself
 
 </details>
@@ -81,16 +81,16 @@ This configurator creates
 2. deterministic gates (scripts) which prevent the agent from doing crazy stuff
    (e.g., merging or committing what the mode doesn't allow).
 3. agent behavior in an md file.
-4. settings, including the mode, in `autotriage.conf`.
+4. settings, including the mode, in `mergatron.conf`.
 
 The agent takes code-changing action (merges and commits) through the scripts.
 The rest of the agent's behavior, such as when it takes action, how, and what it
 says, is set in the `md` file. Change the mode and settings later in
-`autotriage.conf`.
+`mergatron.conf`.
 
 # What it can do
 
-Defaults per mode. Adjust in `autotriage.conf`.
+Defaults per mode. Adjust in `mergatron.conf`.
 
 ## On its own
 

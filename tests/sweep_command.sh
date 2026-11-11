@@ -3,7 +3,7 @@
 # sweep; anything longer stays an ordinary mention.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
-wf=github-template/workflows/autotriage.yml
+wf=github-template/workflows/mergatron.yml
 re=$(grep -F '(sweep|cron)' "$wf" | sed -E 's/.*=~ (.*) \]\] && trigger=sweep.*/\1/')
 [[ -n "$re" ]] || { echo "$wf: no sweep command"; exit 1; }
 grep -qF "steps.settings.outputs.trigger" "$wf" || { echo "$wf: prompt ignores the sweep trigger"; exit 1; }

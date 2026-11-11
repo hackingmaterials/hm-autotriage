@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Make autotriage files for a repository. Run it here, in autotriage-generic;
+# Make mergatron files for a repository. Run it here, in mergatron;
 # it writes output/REPO/.github/, which you then copy into the repository:
 #
 #   ./setup.sh --repo OWNER/REPO --mode normal --maintainer @someone
@@ -158,9 +158,9 @@ if [[ ${#maintainers[@]} -eq 0 ]]; then
 fi
 
 # Choose the files for the mode.
-files=(autotriage_rules.md autotriage.conf autotriage_lib.sh autotriage_comment.sh workflows/autotriage.yml)
+files=(mergatron_rules.md mergatron.conf mergatron_lib.sh mergatron_comment.sh workflows/mergatron.yml)
 if [[ "$mode" != conservative ]]; then
-  files+=(autotriage_guard.sh)
+  files+=(mergatron_guard.sh)
   if [[ "$autofix" == on ]]; then
     files+=(autofix_rules.md autofix_publish.sh workflows/autofix.yml)
   fi
@@ -179,12 +179,12 @@ fi
 mkdir -p "$out/workflows"
 cd "$out"
 for f in "${files[@]}"; do cp "$src/$f" "$f"; done
-for f in autotriage_comment.sh autotriage_guard.sh autofix_publish.sh; do
+for f in mergatron_comment.sh mergatron_guard.sh autofix_publish.sh; do
   if [[ -f "$f" ]]; then chmod +x "$f"; fi
 done
 
 # Fill in the settings.
-conf=autotriage.conf
+conf=mergatron.conf
 set_line "$conf" "mode = " "mode = $mode"
 set_line "$conf" "max_prs_per_run = " "max_prs_per_run = $max_prs"
 set_line "$conf" "mentions = " "mentions = $mentions"
@@ -196,7 +196,7 @@ if [[ "$mode" == mayhem || "$autofix" == on ]]; then drop_line "$conf" "protecte
 # The bots may change .github/, except its workflows and their own files.
 if [[ "$edit_github" == yes ]]; then drop_line "$conf" "protected = .github/*"; fi
 
-wf=workflows/autotriage.yml
+wf=workflows/mergatron.yml
 if [[ -z "$cron_expr" ]]; then
   drop_line "$wf" "  schedule:"
   drop_line "$wf" "    - cron: "
@@ -205,10 +205,10 @@ else
 fi
 if [[ "$mode" == conservative ]]; then
   # Conservative never merges, so the bot doesn't get the merge guard.
-  set_text "$wf" ",Bash(.github/autotriage_guard.sh:*)" ""
+  set_text "$wf" ",Bash(.github/mergatron_guard.sh:*)" ""
 fi
 
-rules=autotriage_rules.md
+rules=mergatron_rules.md
 repo_line="$repo"
 if [[ -n "$description" ]]; then repo_line="$repo: $description"; fi
 others="none listed yet"
@@ -226,12 +226,12 @@ set_text "$rules" "{{OTHER_MAINTAINERS}}" "$others"
 
 # Check the result.
 ! grep -n '{{' "$rules" || die "placeholders left in $rules"
-for f in autotriage_lib.sh autotriage_comment.sh autotriage_guard.sh autofix_publish.sh; do
+for f in mergatron_lib.sh mergatron_comment.sh mergatron_guard.sh autofix_publish.sh; do
   if [[ -f "$f" ]]; then bash -n "$f" || die "syntax error in $f"; fi
 done
 expected="$mode"
 (
-  source autotriage_lib.sh
+  source mergatron_lib.sh
   load_conf "$conf" >/dev/null
   [[ "$mode" == "$expected" ]]
 ) || die "$conf doesn't read back as mode $expected"
@@ -319,8 +319,8 @@ cat <<'EOF'
 EOF
 printf '\n  These files use %s%s%s mode.\n\n' "$bold" "$mode" "$reset"
 printf '  %sYou can adjust any of this later:%s the mode and other settings are\n' "$bold" "$reset"
-echo "  lines in .github/autotriage.conf, and the sweep schedule is the cron line"
-echo "  in .github/workflows/autotriage.yml. Conservative mode always wins: it"
+echo "  lines in .github/mergatron.conf, and the sweep schedule is the cron line"
+echo "  in .github/workflows/mergatron.yml. Conservative mode always wins: it"
 echo "  stops every merge and commit."
 
 section "To install"
@@ -339,14 +339,14 @@ if [[ "$mode" != conservative ]]; then
     "$url/settings/branches"
 fi
 step "Run it once by hand and read the summary:" \
-  "gh workflow run autotriage -R $repo"
+  "gh workflow run mergatron -R $repo"
 
 section "Notes"
 if [[ -n "$previous" ]]; then
   note "The files from your last run, with any edits, are in $previous/. Copy back anything you want to keep."
 fi
 note "If $repo already has other workflows that run Claude, make sure they don't answer the same \"@claude\" comments."
-note "If you rerun setup.sh with a different mode, delete autotriage files the new mode no longer lists from the repo."
+note "If you rerun setup.sh with a different mode, delete mergatron files the new mode no longer lists from the repo."
 if [[ -n "$lint_note" ]]; then note "$lint_note"; fi
 
 # The API key: check the repo has it, and offer to set it.
@@ -385,7 +385,7 @@ fi
 bar=$(repeat 72 ━)
 printf '\n%s%s%s\n\n' "$bold$magenta" "$bar" "$reset"
 printf '  %s▶ NOW RUN THIS IN YOUR AGENT:%s\n\n' "$bold$yellow" "$reset"
-printf '    %sRead CUSTOMIZE.md and walk me through customizing the autotriage files in %s for %s. I already ran setup.sh.%s\n' \
+printf '    %sRead CUSTOMIZE.md and walk me through customizing the mergatron files in %s for %s. I already ran setup.sh.%s\n' \
   "$bold$green" "$rel" "$repo" "$reset"
 printf '\n%s%s%s\n' "$bold$magenta" "$bar" "$reset"
 

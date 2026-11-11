@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Commit Claude's change, only if it passes these checks. Claude runs this
 # once, with no arguments, from the code checkout, as its only way to write.
-# autofix.yml copies it outside the checkout first, next to autotriage.conf,
-# autotriage_lib.sh, and base.sha (the commit Claude started from).
+# autofix.yml copies it outside the checkout first, next to mergatron.conf,
+# mergatron_lib.sh, and base.sha (the commit Claude started from).
 #
 # For an issue: commit to autofix/issue-<n> and open a PR that fixes it
 # (a draft, unless merge_own_fixes = yes). For a PR: add one commit to it.
@@ -11,7 +11,7 @@
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
-source "$here/autotriage_lib.sh"
+source "$here/mergatron_lib.sh"
 date >"$here/ran"
 
 # Who asked, about what: set by autofix.yml, not by Claude.
@@ -40,7 +40,7 @@ on_exit() {
 trap on_exit EXIT
 
 # Read and check the settings.
-load_conf "$here/autotriage.conf"
+load_conf "$here/mergatron.conf"
 [[ "$mode" != conservative ]] || fail "mode is conservative, so the bot never commits"
 [[ "$autofix_prs" =~ ^(on|off)$ ]] || fail "bad autofix_prs '$autofix_prs'"
 [[ "$autofix_issues" =~ ^(on|off)$ ]] || fail "bad autofix_issues '$autofix_issues'"
@@ -57,9 +57,9 @@ title=$(jq -r .title <<<"$info")
 target="issue"
 [[ $(jq 'has("pull_request")' <<<"$info") == false ]] || target="pr"
 if [[ "$target" == pr ]]; then
-  [[ "$autofix_prs" == on ]] || fail "autofix_prs is off in autotriage.conf"
+  [[ "$autofix_prs" == on ]] || fail "autofix_prs is off in mergatron.conf"
 else
-  [[ "$autofix_issues" == on ]] || fail "autofix_issues is off in autotriage.conf"
+  [[ "$autofix_issues" == on ]] || fail "autofix_issues is off in mergatron.conf"
 fi
 
 # Take Claude's summary and change out of the working tree, leaving it clean.

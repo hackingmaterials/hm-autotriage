@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# autotriage_comment.sh posts a comment only if it has at most
+# mergatron_comment.sh posts a comment only if it has at most
 # max_comment_words outside a closed <details> section. "gh" is a stub that
 # records what would be posted, so this runs offline and posts nothing.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
-cp "$root"/github-template/{autotriage_lib.sh,autotriage_comment.sh} "$tmp/"
+cp "$root"/github-template/{mergatron_lib.sh,mergatron_comment.sh} "$tmp/"
 mkdir "$tmp/bin"
 printf '#!/usr/bin/env bash\necho "$*" >"%s/posted"\n' "$tmp" >"$tmp/bin/gh"
 chmod +x "$tmp/bin/gh"
@@ -18,9 +18,9 @@ words() { printf 'word %.0s' $(seq "$1"); }
 
 # Usage: check "<conf lines>" "<body>" posted|refused
 check() {
-  printf '%b\n' "$1" >"$tmp/autotriage.conf"
+  printf '%b\n' "$1" >"$tmp/mergatron.conf"
   rm -f "$tmp/posted"
-  bash "$tmp/autotriage_comment.sh" 7 "$2" >/dev/null 2>&1 || true
+  bash "$tmp/mergatron_comment.sh" 7 "$2" >/dev/null 2>&1 || true
   got=refused
   [[ ! -f "$tmp/posted" ]] || got=posted
   if [[ "$got" != "$3" ]]; then

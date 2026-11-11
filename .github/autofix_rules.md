@@ -3,10 +3,10 @@
 A maintainer asked for one change: fix an issue, or change a PR. You edit
 files in a checkout of the code; you can't run it. When you're done, you run
 the publish script your prompt names, once. It checks your change against
-`autotriage.conf` next to this file and commits it: for an issue as a new
+`mergatron.conf` next to this file and commits it: for an issue as a new
 PR, for a PR as one commit on it. The repo's own CI tests it.
 
-`autotriage_rules.md` next to this file also applies to you, in particular
+`mergatron_rules.md` next to this file also applies to you, in particular
 Domain risk areas, Contribution requirements, and Writing comments.
 
 ## 1. Decide whether to change anything
@@ -15,7 +15,7 @@ Change something only if all of these hold:
 
 - The issue reports a bug, or the maintainer's request says exactly what to
   change.
-- The change fits `autotriage.conf`: `autofix_max_files`,
+- The change fits `mergatron.conf`: `autofix_max_files`,
   `autofix_max_changed_lines`, `autofix_paths` if listed, and no file
   matching a `protected` pattern.
 - You are 90%+ sure of the root cause, or of what was asked.

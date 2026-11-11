@@ -1,6 +1,6 @@
-# Shared helpers for the gate scripts, autotriage_guard.sh (merging) and
+# Shared helpers for the gate scripts, mergatron_guard.sh (merging) and
 # autofix_publish.sh (committing fixes), and for the workflows that read
-# autotriage.conf. Source this file; don't run it.
+# mergatron.conf. Source this file; don't run it.
 
 # Print why and stop. Scripts set $who (e.g. "#12") to name the subject.
 fail() {
@@ -29,7 +29,7 @@ load_conf() {
   # The triage workflow.
   max_prs_per_run=5
   mentions=on
-  # Merging (autotriage_guard.sh).
+  # Merging (mergatron_guard.sh).
   merge_kinds=()
   allow_no_ci=no
   base_branch=""

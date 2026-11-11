@@ -5,7 +5,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
-cp "$root"/github-template/{autotriage_lib.sh,autotriage_guard.sh,autofix_publish.sh} "$tmp/"
+cp "$root"/github-template/{mergatron_lib.sh,mergatron_guard.sh,autofix_publish.sh} "$tmp/"
 mkdir "$tmp/bin"
 printf '#!/usr/bin/env bash\ncat "%s/gh.json"\n' "$tmp" >"$tmp/bin/gh"
 chmod +x "$tmp/bin/gh"
@@ -14,7 +14,7 @@ failed=0
 
 # Usage: check <script> "<conf lines>" "<gh JSON>" "<expected output>"
 check() {
-  printf '%b\n' "$2" >"$tmp/autotriage.conf"
+  printf '%b\n' "$2" >"$tmp/mergatron.conf"
   printf '%s\n' "$3" >"$tmp/gh.json"
   # The guard takes the PR number; the publish script reads these variables.
   out=$(NUMBER=7 REQUESTER=someone GH_TOKEN=x bash "$tmp/$1" 7 2>&1 || true)
@@ -29,11 +29,11 @@ pr='{"state":"OPEN","isDraft":false,"baseRefName":"main","mergeable":"MERGEABLE"
 "reviewDecision":"","headRefName":"autofix/issue-3","labels":[{"name":"stop"}]}'
 own="the bot's own fixes need a person"
 base="base_branch = main\nblock_label = stop"
-check autotriage_guard.sh "mode = normal\n$base" "$pr" "$own"
-check autotriage_guard.sh "mode = mayhem\n$base" "$pr" "has label 'stop'"
-check autotriage_guard.sh "mode = normal\nmerge_own_fixes = yes\n$base" "$pr" "has label 'stop'"
-check autotriage_guard.sh "mode = mayhem\nmerge_own_fixes = no\n$base" "$pr" "$own"
-check autotriage_guard.sh "mode = normal\nmerge_own_fixes = maybe\n$base" "$pr" "bad merge_own_fixes"
+check mergatron_guard.sh "mode = normal\n$base" "$pr" "$own"
+check mergatron_guard.sh "mode = mayhem\n$base" "$pr" "has label 'stop'"
+check mergatron_guard.sh "mode = normal\nmerge_own_fixes = yes\n$base" "$pr" "has label 'stop'"
+check mergatron_guard.sh "mode = mayhem\nmerge_own_fixes = no\n$base" "$pr" "$own"
+check mergatron_guard.sh "mode = normal\nmerge_own_fixes = maybe\n$base" "$pr" "bad merge_own_fixes"
 
 # Publishing refuses the kind of fix that is off.
 issue='{"state":"open","title":"t"}'

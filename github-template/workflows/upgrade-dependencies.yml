@@ -1,5 +1,5 @@
 # Weekly pinned-dependency upgrades for Python projects using pip-tools, as a
-# single PR from a fixed branch that autotriage.conf lists as deps_branch.
+# single PR from a fixed branch that mergatron.conf lists as deps_branch.
 # Lock files go to requirements/<os>_py<version>.txt, one per matrix entry.
 # Needs a PAT secret so CI runs on the PR without approval.
 # Based on https://www.oddbird.net/2022/06/01/dependabot-single-pull-request/
@@ -12,7 +12,7 @@ on:
     - cron: '0 8 * * 1'
 
 env:
-  # Must match deps_branch in .github/autotriage.conf.
+  # Must match deps_branch in .github/mergatron.conf.
   DEPS_BRANCH: auto-dependency-upgrades
   # pip-tools often lags new pip releases; loosen once it catches up.
   PIP_SPEC: 'pip<26'

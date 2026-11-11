@@ -1,18 +1,18 @@
 # Claude PR triage rules
 
-> This file determines autotriage behavior. The bot reads it from the default 
+> This file determines mergatron behavior. The bot reads it from the default 
 branch, so a PR cannot change the rules it is judged by.
 > 
 
 
-This document determines how autotriage is performed.
+This document determines how mergatron is performed.
 
 
 
 
 ## Mode
 
-Read `mode` in `.github/autotriage.conf` at the start of every run. It is
+Read `mode` in `.github/mergatron.conf` at the start of every run. It is
 `conservative`, `normal`, or `mayhem`. If it is missing or any other value,
 act as `conservative`.
 
@@ -104,7 +104,7 @@ If the PR also matches rule 3 or 4, include that in the same comment.
 **In every mode,** escalate when the PR:
 
 - Touches a domain risk area above
-- Touches a file matching a `protected` pattern in `.github/autotriage.conf`,
+- Touches a file matching a `protected` pattern in `.github/mergatron.conf`,
   such as CI, packaging, release, licensing, or large or binary data. This
   includes bot PRs, e.g. GitHub Actions version bumps.
 - Changes prompts or instructions for AI agents (`SKILL.md`, `AGENTS.md`,
@@ -161,14 +161,14 @@ If the PR also matches rule 3 or 4, include that in the same comment.
 looks ready to merge, escalate it with the summary "Looks ready to merge"
 and say what you checked.
 
-Otherwise, merge with `.github/autotriage_guard.sh <PR number>` only if
+Otherwise, merge with `.github/mergatron_guard.sh <PR number>` only if
 **all** the following requirements hold. The script enforces the parts it
 can check. If it refuses because of the PR's kind, branch, or size, escalate
 with the summary "Looks ready to merge" and say why the bot couldn't merge
 it. If it refuses for another reason, go on to the next rule.
 
 - The PR is a kind this repo merges. Normal mode merges `deps`, `docs`, and
-  `tested`; mayhem adds `reviewed`. `merge` lines in `.github/autotriage.conf`
+  `tested`; mayhem adds `reviewed`. `merge` lines in `.github/mergatron.conf`
   replace those lists.
   - **`deps`:** the automated dependency PR. Its head branch matches
     `deps_branch`, it comes from this repository (not a fork), and it only
@@ -187,7 +187,7 @@ it. If it refuses for another reason, go on to the next rule.
 - The description matches the diff
 - CI is green, and it actually tested this change:
   - Zero checks is not green, except when `allow_no_ci = yes` in
-    `.github/autotriage.conf` and the repo has no CI at all. Then your review
+    `.github/mergatron.conf` and the repo has no CI at all. Then your review
     is the only check: read the whole diff, and merge only what you are sure
     of.
   - Read the workflow triggers and path filters in `.github/workflows/`.
@@ -277,8 +277,8 @@ of this evidence the PR has, and whatever it lacks, in your summary.
 Write in ASD-STE100 Simplified Technical English. Use the shortest form that
 works, for every comment (escalations, clarification requests, CI approval
 requests, replies). Post each one with
-`.github/autotriage_comment.sh <number> "<body>"`. It refuses a comment with
-more than `max_comment_words` (in `.github/autotriage.conf`) outside its
+`.github/mergatron_comment.sh <number> "<body>"`. It refuses a comment with
+more than `max_comment_words` (in `.github/mergatron.conf`) outside its
 `<details>` section.
 
 1. **Bottom line.** Always. One sentence, at most 20 words. If 5 words are
