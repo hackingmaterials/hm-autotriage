@@ -82,11 +82,12 @@ as the default:
 
 - **If yes,** follow every step below, in order.
 - **If no,** use the mode's defaults:
-  - Skip questions 0-5a, the two settings, and the auto-adjust question.
+  - Skip questions 0-6, the two settings, and the auto-adjust question.
     Treat auto-adjust as no.
   - Ask only the maintainers question at the end of this step, unless the
     person already named maintainers.
-  - In step 2, leave out `--cron`, `--max-prs`, and `--mentions`, so
+  - In step 2, leave out `--cron`, `--max-prs`, `--mentions`, and
+    `--edit-github`, so
     `setup.sh` uses its defaults. Don't write answers into
     `autotriage.conf`.
   - Skip the style question. Still ask the custom guidance question at
@@ -96,7 +97,7 @@ as the default:
 Then ask these questions **one at a time**, in order. Each is yes or no;
 offer the chosen mode's answer as the default. Skip 0a if 0 is no, and 5a
 if 5 is no. The comment-only questions (0, 0a) come before the ones that
-merge or change code (1-5a).
+merge or change code (1-6).
 
 | # | Question | conservative / normal / mayhem |
 |---|---|---|
@@ -104,16 +105,18 @@ merge or change code (1-5a).
 | 0a | Should maintainers be able to tag "@claude" on issues and PRs for answers, investigations, and reviews? Claude only replies with a comment. This is separate from "@claude fix" (questions 4 and 5), which changes code. | yes / yes / yes |
 | 1 | Should Claude auto-merge dependency upgrades? | no / yes / yes |
 | 2 | Should Claude auto-merge trivial doc updates and typo fixes? | no / yes / yes |
-| 3 | Should Claude auto-merge PRs that pass CI and follow the code guidance (tests included, nothing risky, no protected files like `.github/`)? | no / yes / yes |
+| 3 | Should Claude auto-merge PRs that pass CI and follow the code guidance (tests included, nothing risky, no protected files like CI workflows)? | no / yes / yes |
 | 4 | Should Claude commit fixes to PRs failing CI or the code guidance, when a maintainer asks ("@claude fix" on the PR)? | no / yes / yes |
 | 5 | Should Claude open PRs fixing issues, when a maintainer asks ("@claude fix" on the issue)? | no / yes / yes |
 | 5a | Should Claude merge its own issue-fix PRs once CI passes? | no / no / yes |
+| 6 | Should Claude be able to merge and commit changes to `.github/`, such as issue templates and Dependabot config? Workflows and Claude's own rules and settings stay protected either way. | no / no / yes |
 
 Merging a PR after Claude commits to it (4) follows the answer to 3.
-If the mode is conservative and any of 1-5 is yes, switch to normal and
+If the mode is conservative and any of 1-6 is yes, switch to normal and
 say why: conservative never merges or commits.
 
-Pass the answer to 0a to `setup.sh` as `--mentions on` or `--mentions off`.
+Pass the answer to 0a to `setup.sh` as `--mentions on` or `--mentions off`,
+and the answer to 6 as `--edit-github yes` or `--edit-github no`.
 
 Then ask about two settings, offering the defaults. If 0 is no, skip
 them: the bot then never sweeps and ignores mentions (`--cron never
@@ -248,7 +251,7 @@ In this directory:
 
 ```sh
 ./setup.sh --repo OWNER/REPO --mode MODE --maintainer @DEFAULT \
-  --cron WHEN --max-prs N --mentions on|off
+  --cron WHEN --max-prs N --mentions on|off --edit-github yes|no
 ```
 
 Add these as needed:
@@ -285,6 +288,12 @@ wrote it.
 `pyproject.toml` is protected unless the mode is mayhem or the answer to 5
 is yes. `setup.sh` removes `protected = pyproject.toml` whenever "@claude
 fix" is on; if 5 is no and the mode isn't mayhem, add that line back.
+
+`.github/` is protected unless the answer to 6 is yes: `setup.sh
+--edit-github yes` removes `protected = .github/*`, and is the default in
+mayhem. The `protected` lines after it always stay: GitHub doesn't let the
+Claude app write `.github/workflows/`, and the bots must not change their
+own files (`.github/autotriage*`, `.github/autofix*`) or `CODEOWNERS`.
 
 `setup.sh` prints the setup checklist; put it in your report.
 
@@ -409,6 +418,7 @@ mode, which never merges or commits.
 | The bot to merge its own issue-fix PRs, or not | `merge_own_fixes = yes` or `no` |
 | The bot kept away from more files | More `protected` patterns |
 | The bot kept away from `pyproject.toml`, or allowed to edit it | Add or delete `protected = pyproject.toml`. Setup leaves it out in mayhem or when "@claude fix" opens PRs. |
+| The bot kept away from `.github/`, or allowed to edit it | Add or delete `protected = .github/*`. Setup leaves it out in mayhem or with `--edit-github yes`. Keep the `.github/` lines after it. |
 | Bot changes kept to some directories | `autofix_paths` patterns |
 | Some branches never merged by the bot | `block_branch` patterns |
 | Different size limits | `max_changed_lines`, `autofix_max_files`, `autofix_max_changed_lines`, `max_comment_words` |

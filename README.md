@@ -73,7 +73,7 @@ If the API key isn't set yet: `gh secret set ANTHROPIC_API_KEY -R OWNER/REPO`
 Run `/install-github-app` in Claude Code, from your repo, so the bot posts as
 `claude[bot]`. Skip its own workflows.
 
-## How does it work, and what can it do?
+## How does it work?
 
 This configurator creates
 
@@ -88,31 +88,60 @@ The rest of the agent's behavior, such as when it takes action, how, and what it
 says, is set in the `md` file. Change the mode and settings later in
 `autotriage.conf`.
 
-<details>
-<summary><b>What the bot can do (expand me)</b></summary>
+# What it can do
 
-| Ability                                           | Bot able, if configured | Script gate | `.md` guidance | In preset by default               |
-|---------------------------------------------------|-------------------------|-------------|----------------|------------------------------------|
-| Review PRs: comment, label, escalate              | ✅                      | ❌          | ✅             | $\color{green}\text{conservative}$ |
-| Answer "@claude" mentions                         | ✅                      | 🟡          | ✅             | $\color{green}\text{conservative}$ |
-| `"@claude sweep"` runs the PR sweep now             | ✅                      | 🟡          | ✅             | $\color{green}\text{conservative}$ |
-| Auto-merge dependency upgrades                    | ✅                      | ✅          | ✅             | $\color{yellow}\text{normal}$      |
-| Auto-merge docs and typo fixes                    | ✅                      | ✅          | ✅             | $\color{yellow}\text{normal}$      |
-| Auto-merge small code changes with tests          | ✅                      | ✅          | ✅             | $\color{yellow}\text{normal}$      |
-| Auto-merge anything that passes CI and review     | ✅                      | ✅          | ✅             | $\color{red}\text{mayhem}$         |
-| `"@claude fix"` on a PR commits to it               | ✅                      | ✅          | ✅             | $\color{yellow}\text{normal}$      |
-| `"@claude fix"` on an issue opens a PR              | ✅                      | ✅          | ✅             | $\color{yellow}\text{normal}$      |
-| Merge its own fixes                               | ✅                      | ✅          | ✅             | $\color{red}\text{mayhem}$         |
-| Hand risky PRs to a maintainer instead of merging | ✅                      | ❌          | ✅             | $\color{green}\text{conservative}$ |
-| Close PRs or issues                               | 🟡  (only thru own PRs) | ✅          | ✅             | $\color{red}\text{mayhem}$         |
-| Fix code on a cron schedule                       | ❌                      | ✅          | ❌             |                                    |
-| Run code or tests (outside of CI)                 | ❌                      | ✅          | ❌             |                                    |
-| Merge PRs with failing CI                         | ❌                      | ✅          | ✅             |                                    |
-| Merge or commit protected files                   | ❌                      | ✅          | ✅             |                                    |
-| Commit to fork PRs or the default branch          | ❌                      | ✅          |     ❌           |                                    |
-| Act on requests from non-maintainers              | ❌                      | 🟡          | ✅             |                                    |
-| Approve PRs                                       | ❌                      | ❌          | ✅             |                                    |
-| Add or upgrade dependencies in its fixes          | ❌                      | 🟡          | ✅             |                                    |
+Defaults per mode. Adjust in `autotriage.conf`.
 
-</details>
+## On its own
+
+| | $\color{green}\text{conservative}$ | $\color{yellow}\text{normal}$ | $\color{red}\text{mayhem}$ |
+|---|:---:|:---:|:---:|
+| PR: review, label, escalate | ✅ | ✅ | ✅ |
+| PR: merge (docs) | ❌ | ✅ | ✅ |
+| PR: merge (dependency upgrades) | ❌ | ✅ | ✅ |
+| PR: merge (small, tested) | ❌ | ✅ | ✅ |
+| PR: merge (anything passing CI + review) | ❌ | ❌ | ✅ |
+| PR: merge (outside contributors) | ❌ | ✅ | ✅ |
+| PR: merge (own fixes) | ❌ | ❌ | ✅ |
+| PR: merge (`pyproject.toml`) | ❌ | ✅ | ✅ |
+| PR: merge (`.github/`, not workflows) | ❌ | ❌ | ✅ |
+| Issue: close (by merging own fix) | ❌ | ❌ | ✅ |
+
+## Commands
+
+Write access only.
+
+### `@claude <question>`
+
+| | $\color{green}\text{conservative}$ | $\color{yellow}\text{normal}$ | $\color{red}\text{mayhem}$ |
+|---|:---:|:---:|:---:|
+| PR: answer, review | ✅ | ✅ | ✅ |
+| Issue: answer, investigate | ✅ | ✅ | ✅ |
+
+### `@claude fix <request>`
+
+| | $\color{green}\text{conservative}$ | $\color{yellow}\text{normal}$ | $\color{red}\text{mayhem}$ |
+|---|:---:|:---:|:---:|
+| PR: commit (same repo) | ❌ | ✅ | ✅ |
+| PR: commit (fork) | ❌ | ❌ | ❌ |
+| Issue: open fix PR | ❌ | draft | ready |
+
+### `@claude sweep`
+
+| | $\color{green}\text{conservative}$ | $\color{yellow}\text{normal}$ | $\color{red}\text{mayhem}$ |
+|---|:---:|:---:|:---:|
+| PRs: sweep now | ✅ | ✅ | ✅ |
+
+## Never
+
+| | Enforced by |
+|---|---|
+| PR: merge (failing CI) | script |
+| PR: merge (protected files) | script |
+| PR: commit (default branch) | script |
+| PR: approve | rules |
+| PR: close | rules |
+| Fix: add dependencies | rules |
+| Run code or tests | workflow |
+| Obey non-maintainers | workflow |
 

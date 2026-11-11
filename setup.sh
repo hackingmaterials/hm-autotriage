@@ -19,6 +19,9 @@
 #   --max-prs N             PRs each sweep may act on [5]
 #   --mentions on|off       maintainers can tag "@claude" on issues and PRs [on]
 #   --no-autofix            no "@claude fix" in normal or mayhem mode
+#   --edit-github yes|no    the bots may merge and commit changes to .github/,
+#                           except workflows and their own files [yes in
+#                           mayhem, else no]
 #   --pip-tools             add the weekly pip-tools dependency upgrade workflow
 #   --allow-no-ci           let the bot merge on its own review if the repo
 #                           has no CI at all (ignored once it has any CI)
@@ -81,6 +84,7 @@ cron=weekdays
 max_prs=5
 mentions=on
 autofix=on
+edit_github=""
 pip_tools=false
 allow_no_ci=no
 repo=""
@@ -93,6 +97,7 @@ while [[ $# -gt 0 ]]; do
     --max-prs) need "$@"; max_prs="$2"; shift 2 ;;
     --mentions) need "$@"; mentions="$2"; shift 2 ;;
     --no-autofix) autofix=off; shift ;;
+    --edit-github) need "$@"; edit_github="$2"; shift 2 ;;
     --pip-tools) pip_tools=true; shift ;;
     --allow-no-ci) allow_no_ci=yes; shift ;;
     --repo) need "$@"; repo="$2"; shift 2 ;;
@@ -118,6 +123,12 @@ case "$cron" in
     ;;
 esac
 [[ "$mode" != conservative ]] || autofix=off
+[[ -z "$edit_github" || "$edit_github" =~ ^(yes|no)$ ]] || die "--edit-github must be yes or no"
+if [[ -z "$edit_github" ]]; then
+  edit_github=no
+  [[ "$mode" != mayhem ]] || edit_github=yes
+fi
+[[ "$mode" != conservative ]] || edit_github=no
 i=0
 while [[ $i -lt ${#maintainers[@]} ]]; do
   handle="${maintainers[$i]#@}"
@@ -182,6 +193,8 @@ if [[ "$mode" != conservative && "$autofix" == off ]]; then set_line "$conf" "# 
 # In mayhem, or when the bot may open PRs, it may edit pyproject.toml.
 # (Conservative already turned autofix off above.)
 if [[ "$mode" == mayhem || "$autofix" == on ]]; then drop_line "$conf" "protected = pyproject.toml"; fi
+# The bots may change .github/, except its workflows and their own files.
+if [[ "$edit_github" == yes ]]; then drop_line "$conf" "protected = .github/*"; fi
 
 wf=workflows/autotriage.yml
 if [[ -z "$cron_expr" ]]; then
@@ -285,6 +298,7 @@ field "PRs per sweep" "up to $max_prs"
 field '"@claude" mentions' "$mentions"
 if [[ "$mode" != conservative ]]; then
   field '"@claude fix"' "$autofix"
+  field "Edit .github/" "$edit_github (never workflows or its own files)"
   field "Merge without CI" "$allow_no_ci (only if the repo has no CI at all)"
 fi
 field "Escalates to" "${maintainers[0]}$me_note"

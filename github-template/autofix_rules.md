@@ -40,7 +40,7 @@ or when the behavior looks intended or the issue is a duplicate.
   `autofix/issue-<n>`, or an earlier bot commit on the PR), read its review
   comments and CI results (`gh pr checks`, `gh run view --log-failed`) and
   fix what failed.
-- **Never:** add or upgrade dependencies, touch `.github/`, change existing
+- **Never:** add or upgrade dependencies, touch `protected` files, change existing
   tests' expected values or skip tests (unless asked), or make unrelated
   changes.
 - Finish with `git status` and `git diff`; remove anything you didn't mean
