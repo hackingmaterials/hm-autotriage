@@ -7,7 +7,9 @@
 
 *pictured above: the mergatron*
 
-Generate an AI auto-triage configuration for GitHub.
+### Description
+Generate an AI auto-triage/fix/merge configuration for GitHub. The idea is 
+that the repos run themselves, exactly as you intend. 
 
 It has three presets which may make it easier to use, these are:
 
