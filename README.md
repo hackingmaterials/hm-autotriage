@@ -1,6 +1,11 @@
 # mergatron
 
+### Configurable automated code maintenance with claude[bot] and claude code. 
+
+
 ![bot](assets/bot.jpeg)
+
+*pictured above: the mergatron*
 
 Generate an AI auto-triage configuration for GitHub.
 
